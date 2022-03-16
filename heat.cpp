@@ -73,7 +73,11 @@ void main(int argc, char** argv) {
         T[0] = (T[1] + T[Nx]) / 2;
         T[Nx - 1] = (T[Nx - 2] + T[Nx + Nx - 1]) / 2;
 
+        // Mandar el vector inicializado
+        
         MPI_Send(T, n, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD);
+        
+        // Recivir el vector T calculado
 
         MPI_Recv(T, n , MPI_DOUBLE, 1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
@@ -112,7 +116,11 @@ void main(int argc, char** argv) {
 
     }
 
+    // Worker
+    
     else if (taskid == 1) {
+        
+        // Recibir el vector inicializado
         
         MPI_Status status;
 
@@ -130,6 +138,8 @@ void main(int argc, char** argv) {
                 T[((i + 1) * Nx) + j] = T[(i * Nx) + j] + (k * dt * ((T[(i * Nx) + j + 1] + T[(i * Nx) + j - 1] - (2 * T[(i * Nx) + j])) / pow(dx, 2)));
             }
         }
+        
+        // Mandar el vector calculado
 
         MPI_Send(T, n, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);
     }
