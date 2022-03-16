@@ -77,7 +77,7 @@ void main(int argc, char** argv) {
         
         MPI_Send(T, n, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD);
         
-        // Recivir el vector T calculado
+        // Recibir el vector T calculado
 
         MPI_Recv(T, n , MPI_DOUBLE, 1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
