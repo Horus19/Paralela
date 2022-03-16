@@ -99,7 +99,6 @@ void main(int argc, char** argv) {
             }
             for (i = 0; i < Nt; i++) {
                 for (j = 0; j < Nx; j++) {
-                    heatsolution << T[i * Nx + j] << " ";
                     cout << T[i * Nx + j] << " ";
                 }
                 cout << endl;
