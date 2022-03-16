@@ -4,6 +4,7 @@
 int main(int argc, char **argv) {
     MPI_Init(&argc, &argv);
     printf("Hello World\n");
+    printf("Hello World desde GUANE\n");
     MPI_Finalize();
     return 0;
 }
