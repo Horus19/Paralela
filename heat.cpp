@@ -1,3 +1,5 @@
+// heat.cpp : This file contains the 'main' function. Program execution begins and ends there.
+
 #include <iostream>
 #include <vector>
 #include <math.h>
@@ -25,11 +27,6 @@ void main(int argc, char** argv) {
     MPI_Init(&argc,&argv);
     MPI_Comm_rank(MPI_COMM_WORLD,&taskid);
     MPI_Comm_size(MPI_COMM_WORLD,&numtasks);
-    if (numtasks < 2 ) {
-      printf("Se necesitan al menos dos procesos de MPI. Abortando...\n");
-      MPI_Abort(MPI_COMM_WORLD, rc);
-      exit(1);
-    }
     numworkers = numtasks-1;
 
     // Inicializar los valores
@@ -46,10 +43,6 @@ void main(int argc, char** argv) {
     Nx = (int)(xmax / dx) + 1;
     n = Nt * Nx;
     double* T = (double*)malloc(n * sizeof(double));
-    if (T == NULL) {
-        cout << "No se puede asignar suficiente memoria para el arreglo!\n";
-        return 0;
-    }
 
     // Master
 
@@ -80,45 +73,43 @@ void main(int argc, char** argv) {
         T[0] = (T[1] + T[Nx]) / 2;
         T[Nx - 1] = (T[Nx - 2] + T[Nx + Nx - 1]) / 2;
 
-        MPI_Request req;
-        MPI_Send(T, n, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD, &req);
-        MPI_Wait(&req, MPI_STATUS_IGNORE);
+        MPI_Send(T, n, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD);
 
         MPI_Recv(T, n , MPI_DOUBLE, 1, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         // Imprimir el vector T
 
-    ofstream heatsolution("heatsolution.txt", std::ofstream::out);
+        ofstream heatsolution("heatsolution.txt", std::ofstream::out);
 
-    if (heatsolution.is_open()) {
-        double xt;
-        double tx;
-        tx = 0;
-        xt = 0;
-        int index = 0;
-        for (i = 0; i < Nt; i++) {
-            tx = (double)dt * i;
-            for (j = 0; j < Nx; j++) {
-                xt = (double)dx * j;
-                heatsolution << xt << std::setw(10);
-                heatsolution << tx << std::setw(10);
-                heatsolution << T[index] << "\n";
-                index += 1;
+        if (heatsolution.is_open()) {
+            double xt;
+            double tx;
+            tx = 0;
+            xt = 0;
+            int index = 0;
+            for (i = 0; i < Nt; i++) {
+                tx = (double)dt * i;
+                for (j = 0; j < Nx; j++) {
+                    xt = (double)dx * j;
+                    heatsolution << xt << std::setw(10);
+                    heatsolution << tx << std::setw(10);
+                    heatsolution << T[index] << "\n";
+                    index += 1;
+                }
+            }
+            for (i = 0; i < Nt; i++) {
+                for (j = 0; j < Nx; j++) {
+                    heatsolution << T[i * Nx + j] << " ";
+                    cout << T[i * Nx + j] << " ";
+                }
+                cout << endl;
+
+            heatsolution.close();
             }
         }
-        for (i = 0; i < Nt; i++) {
-            for (j = 0; j < Nx; j++) {
-                heatsolution << T[i * Nx + j] << " ";
-                cout << T[i * Nx + j] << " ";
-            }
-            cout << endl;
 
-        heatsolution.close();
-        }
-    }
-
-    // Libero la memoria asignada a T
-    free(T);
+        // Libero la memoria asignada a T
+        free(T);
 
     }
 
@@ -146,3 +137,4 @@ void main(int argc, char** argv) {
 
     MPI_Finalize();
 }
+
